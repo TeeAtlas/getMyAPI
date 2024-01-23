@@ -1,56 +1,41 @@
 import { useState, useEffect } from 'react';
-const apiKey = import.meta.env.VITE_API_KEY;
-console.log(apiKey);
+import LocationMap from './LocationMap';
+import 'leaflet/dist/leaflet.css';
 
-function CountryInfo({ ip }) {
+
+
+function CountryInfo() {
+    const [ip, setIp] = useState("");
     const [country, setCountry] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
+    const [location, setLocation] = useState({});
+    const apiKey = import.meta.env.VITE_API_KEY;
+  
     useEffect(() => {
-        if (!ip) return;
-        setLoading(true);
-        fetch(`http://api.countrylayer.com/v2/ip?access_key=${apiKey}&ip=${ip}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            setCountry(data);
-        })
-        .catch (error => {
-            console.log(error);
-            setError(error);
-            setLoading(false);
-        })
-        .finally(() => {
-            setLoading(false);
+      fetch(`https://geo.ipify.org/api/v2/country,city?apiKey=${apiKey}`)
+      .then(response => response.json())
+      .then(data => {
+        setIp(data.ip);
+        console.log(data);
+        setCountry(data.location.country); 
+        navigator.geolocation.getCurrentPosition((position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            });
+          });
         });
-    }, [ip]);
+    }, [apiKey]);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
 
-    if (error) {
-        return <div>Error: {error.message}</div>;
-    }
-
-    if (!country) {
-        return null;
-    }    
-
-    console.log(country);
-
-    return ( 
-        <>
-        <div>
-            <h2>Stats</h2>
-            <p>Where we at: {country.country} </p>
-            <p>Landmass: {country.continent} </p>
-            <p>Parliament City: {country.capital}</p> 
-            <p>And how people?: {country.population}</p>
-        </div>
-        </>
-    );
+     return (
+    <>
+      <h1>My IP and Location</h1>
+      <p>Your IP is: {ip} </p>
+      <p>Your Country is: {country}</p>
+      <LocationMap location={location} />
+    </>
+  );
 }
 
 export default CountryInfo;
+
