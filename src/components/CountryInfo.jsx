@@ -1,37 +1,19 @@
-import { useState, useEffect } from 'react';
 import LocationMap from './LocationMap';
 import 'leaflet/dist/leaflet.css';
-
+import DataFetch from './DataFetch';
 
 
 function CountryInfo() {
-    const [ip, setIp] = useState("");
-    const [country, setCountry] = useState(null);
-    const [location, setLocation] = useState({});
-    const apiKey = import.meta.env.VITE_API_KEY;
-  
-    useEffect(() => {
-      fetch(`https://geo.ipify.org/api/v2/country,city?apiKey=${apiKey}`)
-      .then(response => response.json())
-      .then(data => {
-        setIp(data.ip);
-        console.log(data);
-        setCountry(data.location.country); 
-        navigator.geolocation.getCurrentPosition((position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            });
-          });
-        });
-    }, [apiKey]);
-
+   const { ip, country, city, region, location } = DataFetch();
 
      return (
     <>
       <h1>My IP and Location</h1>
       <p>Your IP is: {ip} </p>
       <p>Your Country is: {country}</p>
+      <p>Your city is: {city}</p>
+      <p>Your region is: {region}</p>
+
       <LocationMap location={location} />
     </>
   );
